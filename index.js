@@ -1,46 +1,56 @@
 'use strict';
 
-const apiKey = '348839-SimpleRe-U2PY34VF';
+// const apiKey = '348839-SimpleRe-U2PY34VF';
+let baseUrl = `https://cors-anywhere.herokuapp.com/https://tastedive.com/api/similar`;
 
-const options = {
-    method: 'GET',
-    mode: 'no-cors'
-    // credentials: 'same-origin'
+function queryParamsToString(artist) {
+    if (artist.includes(' ') === true) {
+       let res = artist.replace(' ', '+');
+    console.log(res);
+    return res;
+    } else {
+        console.log(artist);
+        return artist;
+    }
 }
 
-function getRecommendation() {
+function getRecommendation(artist) {
 
-    // searchFor, searchType, callback
+    const queryString = queryParamsToString(artist);
+    const url = baseUrl + '?q=' + queryString;
+    console.log(url);
     
-    const url = `https://tastedive.com/api/similar?q=the+smiths&k=${apiKey}`;
-
-    // https://cors-anywhere.herokuapp.com/
-
-    fetch(url, options)
+    fetch(url)
     .then(response => response.json())
-    .then(responseJson => console.log(responseJson))
-    // .catch(error => alert('Something went wrong.'))
-
-    //     let query = {
-    //         type: searchType,
-    //         k: apiKey,
-    //         q: searchFor,
-    //         limit: tasteDiveQueryLimit,
-    //         info: 1
-    //     };
+    .then(responseJson => renderLyrics(responseJson))
+    .catch(error => alert('Something went wrong.'))
     
-    //     $.getJSON(url, query, callback);
-    // };
+}
+
+function renderLyrics(responseJson) {
+    console.log(responseJson);
+    $('.api-content').empty();
+
+
+    for (let i = 0; i <= responseJson.length; i++) {
+        
+        let artistName = responseJson.Similar.Results[i].Name;
+
+        $('.api-content').append(`
+        <p>${responseJson[i].artistName}</p>
+        `);
+    }
 }
 
 function watchForm() {
     $('form').submit(event => {
         event.preventDefault();
-        getRecommendation();
+        let artist = $('.query').val();
+
+        getRecommendation(artist);
     })
 }
 
 $(function() {
-    console.log('App loaded! Waiting for submit!');
     watchForm();
-})
+});
